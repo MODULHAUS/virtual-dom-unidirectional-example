@@ -1,14 +1,31 @@
-var h = require('virtual-dom/h')
 var main = require('main-loop')
-var loop = main({ n: 0 }, render, require('virtual-dom'))
-document.querySelector('#content').appendChild(loop.target)
+var EventEmitter = require('events').EventEmitter
 
-function render (state) {
-  return h('div', [
-    h('h1', 'clicked ' + state.n + ' times'),
-    h('button', { onclick: onclick }, 'click me!')
-  ])
-  function onclick () {
-    loop.update({ n: state.n + 1 })
-  }
+var bus = new EventEmitter
+var emit = bus.emit.bind(bus)
+var state = {
+  loading: false,
+  counter: undefined
 }
+bus.on('plus', function () {
+  state.loading = true
+  loop.update(state)
+  ws.send(JSON.stringify({ plus: 1 }) + '\n')
+})
+
+var ws = new WebSocket('ws://' + location.host)
+ws.binaryType = 'arraybuffer'
+ws.addEventListener('message', function (ev) {
+  try {
+    var str = new TextDecoder('utf-8').decode(new DataView(ev.data))
+    var msg = JSON.parse(str)
+  }
+  catch (err) { return console.error(err) }
+  state.counter = msg.counter
+  state.loading = false
+  loop.update(state)
+})
+
+var render = require('./render.js').bind(null, emit)
+var loop = main(state, render, require('virtual-dom'))
+document.querySelector('#content').appendChild(loop.target)
