@@ -1,5 +1,5 @@
 {
-  "name": "virtual-dom-unidirectional-starter",
+  "name": "virtual-dom-unidirectional-example",
   "scripts": {
     "build": "browserify main.js | uglifyjs -cm > public/bundle.js",
     "start": "node server.js",
