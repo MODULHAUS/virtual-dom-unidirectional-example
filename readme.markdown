@@ -40,21 +40,22 @@ bus.on('plus', function () {
   if (state.loading) return
   state.loading = true
   loop.update(state)
-  ws.send(JSON.stringify({ plus: 1 }) + '\n')
+  ws.write(JSON.stringify({ plus: 1 }) + '\n')
 })
 
-var ws = new WebSocket('ws://' + location.host)
-ws.binaryType = 'arraybuffer'
-ws.addEventListener('message', function (ev) {
-  try {
-    var str = new TextDecoder('utf-8').decode(new DataView(ev.data))
-    var msg = JSON.parse(str)
-  }
-  catch (err) { return console.error(err) }
-  state.counter = msg.counter
+var through = require('through2')
+var split = require('split2')
+
+var wsock = require('websocket-stream')
+var ws = wsock('ws://' + location.host)
+ws.pipe(split(JSON.parse)).pipe(through.obj(write))
+
+function write (row, enc, next) {
+  state.counter = row.counter
   state.loading = false
   loop.update(state)
-})
+  next()
+}
 
 var render = require('./render.js').bind(null, emit)
 var loop = main(state, render, require('virtual-dom'))
