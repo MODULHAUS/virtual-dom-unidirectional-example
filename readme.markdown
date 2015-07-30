@@ -8,7 +8,7 @@ using [main-loop](https://npmjs.com/package/main-loop), websockets,
 and [browserify](http://browserify.org)/[watchify](https://npmjs.com/package/watchify)
 with [npm run scripts](http://substack.net/task_automation_with_npm_run)
 
-[view the example](http://substack.neocities.org/virtual_dom_uni.html)
+[view the example](http://substack.neocities.org/virtual_dom_unidirectional.html)
 
 # quick start
 
