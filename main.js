@@ -8,6 +8,7 @@ var state = {
   counter: undefined
 }
 bus.on('plus', function () {
+  if (state.loading) return
   state.loading = true
   loop.update(state)
   ws.send(JSON.stringify({ plus: 1 }) + '\n')

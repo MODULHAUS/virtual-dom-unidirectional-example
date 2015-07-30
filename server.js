@@ -18,7 +18,7 @@ var wsock = require('websocket-stream')
 wsock.createServer({ server: server }, function (stream) {
   var sp = split(JSON.parse)
   sp.on('error', function (err) { stream.end() })
-  pump(stream, sp, through.obj(write))
+  pump(stream, sp, through.obj(delay(500, write)))
   streams.push(stream)
  
   function write (row, enc, next) {
@@ -29,6 +29,12 @@ wsock.createServer({ server: server }, function (stream) {
       streams[i].write(msg + '\n')
     }
     next()
+  }
+  function delay (ms, f) {
+    return function () {
+      var args = [].slice.call(arguments)
+      setTimeout(function () { f.apply(null, args) }, ms)
+    }
   }
   endof(stream, function () {
     var ix = streams.indexOf(stream)
